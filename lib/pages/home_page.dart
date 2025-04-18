@@ -15,6 +15,8 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController alturaController = TextEditingController();
   final PessoaController pessoaController = PessoaController();
 
+  static const Color primaryColor = Color(0xFF6200EE);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,122 +27,163 @@ class _HomePageState extends State<HomePage> {
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
-        backgroundColor: const Color(0xFF6200EE),
+        backgroundColor: primaryColor,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Digite seu Nome',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    keyboardType: TextInputType.text,
-                    controller: nomeController,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Digite seu Peso (kg)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                    controller: pesoController,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Digite sua Altura (cm)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    keyboardType: TextInputType.number,
-                    controller: alturaController,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6200EE),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32.0,
-                  vertical: 16.0,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTextField(
+                controller: nomeController,
+                label: 'Digite seu Nome',
+                keyboardType: TextInputType.text,
               ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: pesoController,
+                label: 'Digite seu Peso (kg)',
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: alturaController,
+                label: 'Digite sua Altura (cm)',
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32.0,
+                    vertical: 16.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onPressed: _calcularIMC,
+                child: const Text('Calcular IMC'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required TextInputType keyboardType,
+  }) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.5,
+      child: TextField(
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
+        ),
+        keyboardType: keyboardType,
+        controller: controller,
+      ),
+    );
+  }
+
+  void _calcularIMC() {
+    final String nome = nomeController.text;
+    final double peso = double.parse(pesoController.text);
+    final double altura = double.parse(alturaController.text) / 100;
+
+    final Pessoa pessoa = pessoaController.criarPessoa(nome, peso, altura);
+    final String classificacao = pessoaController.obterClassificacao(pessoa);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            '${pessoa.nome}, seu IMC = ${pessoa.imc.toStringAsFixed(2)}',
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildIMCTable(),
+                const SizedBox(height: 16),
+                Text(
+                  'Classificação atual: $classificacao',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
               onPressed: () {
-                final String nome = nomeController.text;
-                final double peso = double.parse(pesoController.text);
-                final double altura = double.parse(alturaController.text) / 100;
-
-                final Pessoa pessoa = pessoaController.criarPessoa(
-                  nome,
-                  peso,
-                  altura,
-                );
-
-                final String classificacao = pessoaController
-                    .obterClassificacao(pessoa);
-
-                setState(() {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Resultado do IMC'),
-                        content: Text(
-                          '${pessoa.nome}, seu IMC é: ${pessoa.imc.toStringAsFixed(2)}\nClassificação: $classificacao',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                });
+                Navigator.of(context).pop();
               },
-              child: const Text('Calular IMC'),
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildIMCTable() {
+    final classificacoes = [
+      {'range': '< 16', 'label': 'Magreza grave'},
+      {'range': '16 a < 17', 'label': 'Magreza moderada'},
+      {'range': '17 a < 18,5', 'label': 'Magreza leve'},
+      {'range': '18,5 a < 25', 'label': 'Saudável'},
+      {'range': '25 a < 30', 'label': 'Sobrepeso'},
+      {'range': '30 a < 35', 'label': 'Obesidade Grau I'},
+      {'range': '35 a < 40', 'label': 'Obesidade Grau II (severa)'},
+      {'range': '>= 40', 'label': 'Obesidade Grau III (mórbida)'},
+    ];
+
+    return Table(
+      border: TableBorder.all(),
+      columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(2)},
+      children: [
+        TableRow(
+          decoration: BoxDecoration(color: Colors.grey[300]),
+          children: const [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'IMC',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Classificação',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
-      ),
+        ...classificacoes.map((item) {
+          return TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(item['range']!, textAlign: TextAlign.center),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(item['label']!, textAlign: TextAlign.center),
+              ),
+            ],
+          );
+        }),
+      ],
     );
   }
 }

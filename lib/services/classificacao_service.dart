@@ -18,4 +18,17 @@ class ClassificacaoSaude {
       return 'Obesidade Grau III (mórbida)';
     }
   }
+
+  static List<String> obterClassificacoes() {
+    return [
+      'Magreza grave',
+      'Magreza moderada',
+      'Magreza leve',
+      'Saudável',
+      'Sobrepeso',
+      'Obesidade Grau I',
+      'Obesidade Grau II (severa)',
+      'Obesidade Grau III (mórbida)',
+    ];
+  }
 }
