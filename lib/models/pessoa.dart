@@ -2,11 +2,10 @@ class Pessoa {
   final String nome;
   final double peso;
   final double altura;
-  late final double imc;
 
-  Pessoa(this.nome, this.peso, this.altura) {
-    imc = peso / (altura * altura);
-  }
+  Pessoa({required this.nome, required this.peso, required this.altura});
+
+  double get imc => peso / (altura * altura);
 
   @override
   String toString() {

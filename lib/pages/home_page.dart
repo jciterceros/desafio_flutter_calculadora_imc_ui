@@ -1,5 +1,6 @@
 import 'package:desafio_flutter_calculadora_imc_ui/controllers/pessoa_controller.dart';
 import 'package:desafio_flutter_calculadora_imc_ui/models/pessoa.dart';
+import 'package:desafio_flutter_calculadora_imc_ui/services/classificacao_service.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,7 +14,9 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController pesoController = TextEditingController();
   final TextEditingController alturaController = TextEditingController();
-  final PessoaController pessoaController = PessoaController();
+  final PessoaController pessoaController = PessoaController(
+    ClassificacaoSaude(),
+  );
 
   static const Color primaryColor = Color(0xFF6200EE);
 
@@ -93,43 +96,64 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _calcularIMC() {
-    final String nome = nomeController.text;
-    final double peso = double.parse(pesoController.text);
-    final double altura = double.parse(alturaController.text) / 100;
+    try {
+      final String nome = nomeController.text;
+      final String peso = pesoController.text;
+      final String altura = alturaController.text;
 
-    final Pessoa pessoa = pessoaController.criarPessoa(nome, peso, altura);
-    final String classificacao = pessoaController.obterClassificacao(pessoa);
+      final resultado = pessoaController.calcularIMC(nome, peso, altura);
+      final Pessoa pessoa = resultado['pessoa'];
+      final String classificacao = resultado['classificacao'];
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(
-            '${pessoa.nome}, seu IMC = ${pessoa.imc.toStringAsFixed(2)}',
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildIMCTable(),
-                const SizedBox(height: 16),
-                Text(
-                  'Classificação atual: $classificacao',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              '${pessoa.nome}, seu IMC = ${pessoa.imc.toStringAsFixed(2)}',
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Fechar'),
+            content: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildIMCTable(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Classificação atual: $classificacao',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
             ),
-          ],
-        );
-      },
-    );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Erro'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Widget _buildIMCTable() {

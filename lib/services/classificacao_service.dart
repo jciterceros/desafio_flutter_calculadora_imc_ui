@@ -1,34 +1,20 @@
 class ClassificacaoSaude {
-  static String classificar(double imc) {
-    if (imc < 16) {
-      return 'Magreza grave';
-    } else if (imc >= 16 && imc < 17) {
-      return 'Magreza moderada';
-    } else if (imc >= 17 && imc < 18.5) {
-      return 'Magreza leve';
-    } else if (imc >= 18.5 && imc < 25) {
-      return 'Saudável';
-    } else if (imc >= 25 && imc < 30) {
-      return 'Sobrepeso';
-    } else if (imc >= 30 && imc < 35) {
-      return 'Obesidade Grau I';
-    } else if (imc >= 35 && imc < 40) {
-      return 'Obesidade Grau II (severa)';
-    } else {
-      return 'Obesidade Grau III (mórbida)';
-    }
-  }
+  static const double limiteMagrezaGrave = 16.0;
+  static const double limiteMagrezaModerada = 17.0;
+  static const double limiteMagrezaLeve = 18.5;
+  static const double limiteSaudavel = 25.0;
+  static const double limiteSobrepeso = 30.0;
+  static const double limiteObesidadeI = 35.0;
+  static const double limiteObesidadeII = 40.0;
 
-  static List<String> obterClassificacoes() {
-    return [
-      'Magreza grave',
-      'Magreza moderada',
-      'Magreza leve',
-      'Saudável',
-      'Sobrepeso',
-      'Obesidade Grau I',
-      'Obesidade Grau II (severa)',
-      'Obesidade Grau III (mórbida)',
-    ];
+  static String classificar(double imc) {
+    if (imc < limiteMagrezaGrave) return 'Magreza grave';
+    if (imc < limiteMagrezaModerada) return 'Magreza moderada';
+    if (imc < limiteMagrezaLeve) return 'Magreza leve';
+    if (imc < limiteSaudavel) return 'Saudável';
+    if (imc < limiteSobrepeso) return 'Sobrepeso';
+    if (imc < limiteObesidadeI) return 'Obesidade Grau I';
+    if (imc < limiteObesidadeII) return 'Obesidade Grau II (severa)';
+    return 'Obesidade Grau III (mórbida)';
   }
 }
